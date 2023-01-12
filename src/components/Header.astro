@@ -1,0 +1,30 @@
+---
+import HeaderLink from './HeaderLink.astro'
+import { MY_SITE, SITE_TITLE } from '../config'
+import { IoLogoGitlab } from 'react-icons/io5/index.js'
+import ThemeToggle from '../components/ThemeToggleButton'
+---
+
+<header class="fixed w-full p-2 z-20 backdrop-blur-md">
+  <div class="mx-auto">
+    <nav class="flex items-center gap-3 text-base justify-center">
+      <a href="/">
+        <h2
+          class="font-semibold tracking-tighter p-2 font-silkScreen text-lg text-expresso-200"
+        >
+          {SITE_TITLE}
+        </h2>
+      </a>
+      <div class="items-center gap-6 hidden md:flex">
+        <HeaderLink href={MY_SITE}>About</HeaderLink>
+        <HeaderLink href="https://gitlab.com/Guillaumeexc1" target="_blank"
+          ><IoLogoGitlab />My Gitlab
+        </HeaderLink>
+      </div>
+      <div class="flex">
+        <ThemeToggle client:load />
+      </div>
+    </nav>
+  </div>
+</header>
+
