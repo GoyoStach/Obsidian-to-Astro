@@ -1,0 +1,4 @@
+[submodule "src/pages/Obsidian-Posts"]
+	path = src/pages/Obsidian-Posts
+	url = https://github.com/GoyoStach/Obsidian-Posts.git
+	branch = main
