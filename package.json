@@ -16,6 +16,7 @@
     "@astrojs/rss": "^1.0.2",
     "@astrojs/sitemap": "^1.0.0",
     "@astrojs/tailwind": "^2.0.2",
+    "@headlessui/react": "^1.7.7",
     "astro": "^1.4.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
