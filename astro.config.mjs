@@ -30,7 +30,8 @@ export default defineConfig({
           h6: 'font-mplus',
           img: 'border border-expresso-300 rounded-xl mb-6',
           p: 'mb-6',
-          a: 'underline underline-offset-2 text-expresso-300 hover:text-expresso-200'
+          a: 'underline underline-offset-2 text-expresso-300 hover:text-expresso-200',
+          ul:'list-disc',          
         }
       ]
     ]
