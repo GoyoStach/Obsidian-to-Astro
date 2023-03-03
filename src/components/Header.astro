@@ -1,7 +1,7 @@
 ---
 import HeaderLink from './HeaderLink.astro'
 import { MY_SITE, SITE_TITLE } from '../config'
-import { IoLogoGitlab } from 'react-icons/io5/index.js'
+import { IoLogoGithub } from 'react-icons/io5/index.js'
 import ThemeToggle from '../components/ThemeToggleButton'
 import DropdownMenu from './DropdownMenu';
 
@@ -28,8 +28,8 @@ allPosts.map(post => {
       </a>
       <div class="items-center gap-6 hidden md:flex text-expresso-400 dark:text-expresso-100">
         <HeaderLink href={MY_SITE}>About</HeaderLink>
-        <HeaderLink href="https://gitlab.com/Guillaumeexc1" target="_blank"
-          ><IoLogoGitlab />My Gitlab
+        <HeaderLink href="https://github.com/GoyoStach" target="_blank"
+          ><IoLogoGithub />My Github
         </HeaderLink>
       </div>
       <div class="flex items-center gap-6 ">
