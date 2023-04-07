@@ -4,6 +4,7 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import Body from '../components/Body.astro'
 import Content from '../components/Content.astro'
+import { IoChevronUp } from 'react-icons/io5/index.js'
 
 export interface Props {
   content: {
@@ -19,14 +20,14 @@ const {
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth scroll-p-16">
   <head>
     <BaseHead title={title} description={description} />
   </head>
 
   <Body>
     <Header />
-    <main class="pt-[56px]">
+    <main class="pt-[56px] relative">
       <Content className="pt-5">
         <div class="mb-8">
           {
@@ -41,10 +42,13 @@ const {
             )
           }
         </div>
-        <h1 class="text-4xl font-bold font-silkScreen text-expresso-200">{title}</h1>
+        <h1 id="title" class="text-4xl font-bold font-silkScreen text-expresso-200">{title}</h1>
         <div>{description}</div>
         <hr class="border-top border-expresso-300 my-4" />
         <slot />
+        <a class="fixed bottom-4 right-4 justify-center rounded-md border border-expresso-400 dark:border-expresso-100 text-expresso-400 dark:text-expresso-100 p-2 text-sm font-medium shadow-sm hover:bg-expresso-200 dark:hover:bg-expresso-300 focus:outline-none focus:ring-2 focus:ring-expresso-200 focus:dark:ring-expresso-300 focus:ring-offset-2 focus:ring-offset-expresso-100 transition-all" href="#title">
+          <IoChevronUp className="h-5 w-5"/>
+        </a>
       </Content>
     </main>
     <Footer />
