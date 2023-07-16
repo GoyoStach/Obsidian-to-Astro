@@ -3,4 +3,4 @@
 
 export const SITE_TITLE = 'GoyoStach'
 export const SITE_DESCRIPTION = 'An insight into my secondary brain !'
-export const MY_SITE = 'https://portfolio-guillaume-omega.vercel.app/'
+export const MY_SITE = 'https://hub-seven-orpin.vercel.app/'

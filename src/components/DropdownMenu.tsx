@@ -1,9 +1,11 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment } from 'react'
 
 import DropdownMenuItem from './DropdownMenuItem'
 import { IoMenu } from 'react-icons/io5/index.js'
 import { Menu } from '@headlessui/react'
 import { Transition } from '@headlessui/react'
+import { motion } from 'framer-motion'
+import { zoomIn } from '../utils/motion'
 
 interface Props {
   tags: string[]
@@ -35,14 +37,21 @@ const DropdownMenu = ({ tags }: Props) => {
             <div className="px-3 py-2 uppercase font-bold text-xs ">
               Categories
             </div>
-            {tags.map(tag => {
+            {tags.map((tag, index) => {
               return (
-                <DropdownMenuItem
+                <motion.div
                   key={tag}
-                  href={`/categories/${tag.toLowerCase()}`}
+                  variants={zoomIn(index * 0.1, 0.3)}
+                  initial="hidden"
+                  whileInView={'show'}
                 >
-                  {tag}
-                </DropdownMenuItem>
+                  <DropdownMenuItem
+                    key={tag}
+                    href={`/categories/${tag.toLowerCase()}`}
+                  >
+                    {tag}
+                  </DropdownMenuItem>
+                </motion.div>
               )
             })}
           </div>
