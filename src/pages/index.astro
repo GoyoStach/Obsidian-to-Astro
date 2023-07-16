@@ -23,14 +23,14 @@ const posts = (await Astro.glob('./Obsidian-Posts/*.md')).sort(
   </head>
   <Body>
     <Header title={SITE_TITLE} />
-    <main class="pt-[56px]">
+    <main class="pt-[56px] xl:space-y-5">
       <Masthead />
-      <h1 class="font-silkScreen text-center text-expresso-300 text-xl">
+      <h1 class="font-silkScreen text-center text-expresso-300 text-xl ">
         What is it about
       </h1>
       <Content>
         <section>
-          <p class="mb-8 indent-4">
+          <p class="mb-8 indent-4 text-center">
             As an avid and curious developper, I've searched, throughout my
             formation and beginning of my career, ways to efficiently take
             notes. <br />
@@ -59,10 +59,10 @@ const posts = (await Astro.glob('./Obsidian-Posts/*.md')).sort(
           </h1>
         </section>
         <hr
-          class="border-top border-expresso-400 dark:border-expresso-100 my-4"
+          class="border-top border-expresso-400 dark:border-expresso-100 my-4 xl:my-10"
         />
         <section>
-          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 xl:grid-cols-3 xl:gap-10 px-10">
             {
               posts.map(post => (
                 <li class="text-center mb-4">
