@@ -28,7 +28,7 @@ export default defineConfig({
           h4: 'text-lg font-bold font-mplus',
           h5: 'font-bold font-mplus',
           h6: 'font-mplus',
-          img: 'border border-expresso-300 rounded-xl mb-6',
+          img: 'border border-expresso-300 rounded-xl mb-6 w-full h-full',
           p: 'mb-6',
           a: 'underline underline-offset-2 text-expresso-300 hover:text-expresso-200',
           ul:'list-disc list-inside pl-2',
@@ -40,6 +40,9 @@ export default defineConfig({
         }
       ]
     ]
-  }
+  },
+  experimental: {
+    viewTransitions: true
+   }
 })
 

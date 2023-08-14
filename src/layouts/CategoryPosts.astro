@@ -28,7 +28,7 @@ const posts = (await Astro.glob('../pages/Obsidian-Posts/*.md')).sort(
     <BaseHead title={category + ` / ${SITE_TITLE}`} description={SITE_DESCRIPTION} />
   </head>
   <Body>
-    <Header title={SITE_TITLE} />
+    <Header transition:persist="nav"/>
     <main class="pt-[56px]">
       <Masthead />
       <Content>

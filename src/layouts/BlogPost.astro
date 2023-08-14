@@ -26,7 +26,7 @@ const {
   </head>
 
   <Body>
-    <Header />
+    <Header transition:persist="nav"/>
     <main class="pt-[56px] relative">
       <Content className="pt-5 xl:max-w-4xl">
         <div class="mb-8">
@@ -38,6 +38,7 @@ const {
                 height={360}
                 src={heroImage}
                 alt=""
+                transition:name={`blogpost-${(title).replace(/\W/g,'')}`}
               />
             )
           }
@@ -54,4 +55,3 @@ const {
     <Footer />
   </Body>
 </html>
-
