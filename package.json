@@ -11,27 +11,27 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/image": "^0.9.1",
-    "@astrojs/react": "^1.1.4",
-    "@astrojs/rss": "^1.0.2",
-    "@astrojs/sitemap": "^1.0.0",
-    "@astrojs/tailwind": "^2.0.2",
-    "@headlessui/react": "^1.7.7",
-    "astro": "^1.4.2",
-    "framer-motion": "^10.12.21",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-icons": "^4.4.0",
-    "sharp": ">=0.31.0",
-    "tailwindcss": "^3.0.24"
+    "@astrojs/image": "^0.17.3",
+    "@astrojs/react": "^2.2.1",
+    "@astrojs/rss": "^2.4.4",
+    "@astrojs/sitemap": "^2.0.1",
+    "@astrojs/tailwind": "^4.0.0",
+    "@headlessui/react": "^1.7.16",
+    "astro": "^2.10.7",
+    "framer-motion": "^10.15.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.10.1",
+    "sharp": ">=0.32.4",
+    "tailwindcss": "^3.3.3"
   },
   "devDependencies": {
-    "@types/react": "^18.0.21",
-    "@typescript-eslint/parser": "^5.38.1",
-    "eslint": "^8.24.0",
-    "eslint-plugin-astro": "^0.19.0",
-    "prettier": "^2.7.1",
-    "prettier-plugin-astro": "^0.5.5",
+    "@types/react": "^18.2.20",
+    "@typescript-eslint/parser": "^6.3.0",
+    "eslint": "^8.47.0",
+    "eslint-plugin-astro": "^0.28.0",
+    "prettier": "^3.0.1",
+    "prettier-plugin-astro": "^0.11.0",
     "rehype-add-classes": "^1.0.0"
   }
 }
