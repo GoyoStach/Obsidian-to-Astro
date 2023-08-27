@@ -1,5 +1,9 @@
 # Zettlekasten to Astro
 © 2021 Guillaume Excoffier. All rights reserved.
+
+## WARNING ⚠️
+
+This project is working but I started it when Astro was only on version 1. I would highly recommend now to pass to version 2 and use Content collection as it provides a better type safety and overall better developer experience. I will most likely refactor this website once astro is at version 3 or that some key new functionnality are no longer experimental ( image optimisation of assets in particular). Cheers !
 ## 🧾Context
 
 This project have the goal of exposing my obsidian notes to the web. The idea of developping such a tool came to me when i saw a video of [Takuya Matsuyama](https://github.com/craftzdog) :
