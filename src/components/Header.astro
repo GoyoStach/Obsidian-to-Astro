@@ -6,7 +6,7 @@ import ThemeToggle from '../components/ThemeToggleButton'
 import DropdownMenu from './DropdownMenu';
 
 
-const allPosts = await Astro.glob('../pages/Obsidian-Posts/*.md')
+const allPosts = await Astro.glob('../content/blogPost/*.md')
 const allTags = new Set<string>()
 allPosts.map(post => {
   post.frontmatter.tags &&

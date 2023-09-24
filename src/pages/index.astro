@@ -4,16 +4,21 @@ import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import { SITE_TITLE, SITE_DESCRIPTION, MY_SITE } from '../config'
 import Body from '../components/Body.astro'
-import Content from '../components/Content.astro'
+import Content from '../components/MyContent.astro'
 import { IoArrowForward } from 'react-icons/io5/index.js'
 import Masthead from '../components/Masthead.astro'
 import { Image } from 'astro:assets'
+import { getCollection, type CollectionEntry } from 'astro:content'
 
-const posts = (await Astro.glob('./Obsidian-Posts/*.md')).sort(
-  (a: any, b: any) =>
-    new Date(b.frontmatter.date).valueOf() -
-    new Date(a.frontmatter.date).valueOf()
+const posts = (await getCollection('blogPost')).sort(
+  (a: CollectionEntry<'blogPost'>, b: CollectionEntry<'blogPost'>) =>
+    new Date(b.data.date || '').valueOf() -
+    new Date(a.data.date || '').valueOf()
 )
+
+interface Props {
+  posts:  CollectionEntry<'blogPost'>[]
+}
 ---
 
 <!DOCTYPE html>
@@ -66,20 +71,20 @@ const posts = (await Astro.glob('./Obsidian-Posts/*.md')).sort(
             {
               posts.map(post => (
                 <li class="text-center mb-4">
-                  <a href={post.url}>
+                  <a href={post.slug}>
                     <Image
                       class="border border-expresso-300 rounded-xl"
-                      src={post.frontmatter.heroImage}
+                      src={post.data.heroImage}
                       width={720 * 2}
                       height={500}
                       alt="Thumbnail"
-                      transition:name={`blogpost-${(post.frontmatter.title).replace(/\W/g,'')}`}
+                      transition:name={`blogpost-${(post.data.title).replace(/\W/g,'')}`}
                     />
                     <div class="mt-3 text-xl text-expresso-300 font-silkScreen">
-                      {post.frontmatter.title}
+                      {post.data.title}
                     </div>
                     <div class="opacity-70 text-expresso-300">
-                      {post.frontmatter.description}
+                      {post.data.description}
                     </div>
                   </a>
                 </li>
