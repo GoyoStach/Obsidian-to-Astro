@@ -2,7 +2,3 @@
 	path = public/Images
 	url = https://github.com/GoyoStach/Obsidian-Images.git
 	branch = main
-[submodule "src/content/blogPost"]
-	path = src/content/blogPost
-	url = git@github.com-goyo:GoyoStach/Obsidian-Posts.git
-	branch = main
