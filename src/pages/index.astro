@@ -10,9 +10,7 @@ import Masthead from '../components/Masthead.astro'
 import { Image } from 'astro:assets'
 import { getCollection, type CollectionEntry } from 'astro:content'
 
-const postsRAW = (await getCollection('blogPost'))
-
-const posts = postsRAW.sort(
+const posts = Array.from((await getCollection('blogPost'))).sort(
   (a: CollectionEntry<'blogPost'>, b: CollectionEntry<'blogPost'>) =>
     new Date(b.data.date || '').valueOf() -
     new Date(a.data.date || '').valueOf()
