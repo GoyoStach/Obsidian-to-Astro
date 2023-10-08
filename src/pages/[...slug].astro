@@ -3,54 +3,59 @@ import BaseHead from '../components/BaseHead.astro'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import Body from '../components/Body.astro'
-import Content from '../components/Content.astro'
+import MyContent from '../components/MyContent.astro'
 import { IoChevronUp } from 'react-icons/io5/index.js'
+import { Image } from 'astro:assets'
+import { getCollection, type CollectionEntry } from 'astro:content'
 
-export interface Props {
-  content: {
-    title: string
-    description: string
-    heroImage?: string
-  }
+export async function getStaticPaths() {
+  const blogPost = await getCollection('blogPost')
+  return blogPost.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry }
+  }))
 }
 
-const {
-  content: { title, description, heroImage }
-} = Astro.props
+interface Props {
+  entry: CollectionEntry<'blogPost'>
+}
+
+const { entry } = Astro.props
+const { Content } = await entry.render()
 ---
 
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth scroll-p-16">
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead title={entry.data.title} description={entry.data.description} />
   </head>
 
   <Body>
     <Header transition:persist="nav"/>
     <main class="pt-[56px] relative">
-      <Content className="pt-5 xl:max-w-4xl">
+      <MyContent className="pt-5 xl:max-w-4xl">
         <div class="mb-8">
           {
-            heroImage && (
-              <img
+            entry.data.heroImage && (
+              <Image
                 class="border border-expresso-300 rounded-xl "
                 width={720}
                 height={360}
-                src={heroImage}
-                alt=""
-                transition:name={`blogpost-${(title).replace(/\W/g,'')}`}
+                src={entry.data.heroImage}
+                alt="test"
+                transition:name={`blogpost-${(entry.data.title).replace(/\W/g,'')}`}
               />
             )
           }
         </div>
-        <h1 id="title" class="text-4xl font-bold font-silkScreen text-expresso-200">{title}</h1>
-        <div>{description}</div>
+        <h1 id="title" class="text-4xl font-bold font-silkScreen text-expresso-200">{entry.data.title}</h1>
+        <div>{entry.data.description}</div>
         <hr class="border-top border-expresso-300 my-4" />
-        <slot />
+        <Content />
         <a class="fixed bottom-4 right-4 justify-center rounded-md border border-expresso-400 dark:border-expresso-100 text-expresso-400 dark:text-expresso-100 p-2 text-sm font-medium shadow-sm hover:bg-expresso-200 dark:hover:bg-expresso-300 focus:outline-none focus:ring-2 focus:ring-expresso-200 focus:dark:ring-expresso-300 focus:ring-offset-2 focus:ring-offset-expresso-100 transition-all" href="#title">
           <IoChevronUp className="h-5 w-5"/>
         </a>
-      </Content>
+      </MyContent>
     </main>
     <Footer />
   </Body>

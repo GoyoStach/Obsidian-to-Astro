@@ -40,7 +40,8 @@ const { title, description, image = '/placeholder-social.jpg' } = Astro.props
 <ViewTransitions fallback="swap" />
 
 <script is:inline>
-  const theme = (() => {
+  const setDarkMode = () => {
+    const theme = (() => {
     if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
       return localStorage.getItem('theme')
     }
@@ -49,10 +50,13 @@ const { title, description, image = '/placeholder-social.jpg' } = Astro.props
     }
     return 'light'
   })()
-  if (theme === 'light') {
-    document.documentElement.classList.remove('dark')
-  } else {
-    document.documentElement.classList.add('dark')
+    if (theme === 'light') {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
   }
+  setDarkMode()
+  document.addEventListener('astro:after-swap', setDarkMode);
 </script>
 

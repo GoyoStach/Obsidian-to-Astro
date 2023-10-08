@@ -1,6 +1,5 @@
 import addClasses from 'rehype-add-classes'
 import { defineConfig } from 'astro/config'
-import image from '@astrojs/image'
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
 import tailwind from '@astrojs/tailwind'
@@ -11,9 +10,6 @@ export default defineConfig({
   integrations: [
     sitemap(),
     react(),
-    image({
-      serviceEntryPoint: '@astrojs/image/sharp'
-    }),
     tailwind()
   ],
   markdown: {
@@ -40,9 +36,6 @@ export default defineConfig({
         }
       ]
     ]
-  },
-  experimental: {
-    viewTransitions: true
-   }
+  }
 })
 
