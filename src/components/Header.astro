@@ -4,14 +4,17 @@ import { MY_SITE, SITE_TITLE } from '../config'
 import { IoLogoGithub } from 'react-icons/io5/index.js'
 import ThemeToggle from '../components/ThemeToggleButton'
 import DropdownMenu from './DropdownMenu';
+import { getCollection } from 'astro:content';
 
-
-const allPosts = await Astro.glob('../content/blogPost/*.md')
+const allPosts = Array.from((await getCollection('blogPost')))
 const allTags = new Set<string>()
 allPosts.map(post => {
-  post.frontmatter.tags &&
-    post.frontmatter.tags.map((tag: string) => allTags.add(tag))
+  post.data.tags &&
+    post.data.tags.map((tag: string) => allTags.add(tag))
 })
+
+
+
 ---
 
 
