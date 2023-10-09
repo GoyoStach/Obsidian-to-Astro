@@ -1,9 +1,14 @@
 # Zettlekasten to Astro
 © 2021 Guillaume Excoffier. All rights reserved.
 
-## WARNING ⚠️
+## New ! 🆕
 
-This project is working but I started it when Astro was only on version 1. I would highly recommend now to pass to version 2 and use Content collection as it provides a better type safety and overall better developer experience. I will most likely refactor this website once astro is at version 3 or that some key new functionnality are no longer experimental ( image optimisation of assets in particular). Cheers !
+I recently upgraded this project from Astro 1.0 to Astro 3.0 ! 🎊
+
+Here is a small recap of the key improvements from bumping up to version 3.0 :
+- Content collections : In version 1 you had to manually import files in order to use them. It is not the case anymore, you can use this built in feature. Also it provides type safety when accessing the frontmatter ! An overall great improvement on the developper experience side 💻, you can learn more about all the great possibilities about content collections [here](https://docs.astro.build/en/guides/content-collections/).
+- Image Optimisation : Instead of using the public repository, you now compute them directly and optimize them in the src directory. It really simplifies the process of handling images optimize by default images inside the body of markdown files as long as they are located in the src folder ! It is probably the main reason I upgraded to 3.0. Really excited about this feature ! You can learn more about images in Astro [here](https://docs.astro.build/en/guides/images/).
+- View Transition : While keeping the app in a SSR/SSG rendering patern, we are now able to add transition in between pages. Improve greatly the use experience. It was made possible with the addition of `::view-transition` to css (still experimental). Learn more about transitions [here](https://docs.astro.build/en/guides/view-transitions/).
 ## 🧾Context
 
 This project have the goal of exposing my obsidian notes to the web. The idea of developping such a tool came to me when i saw a video of [Takuya Matsuyama](https://github.com/craftzdog) :
@@ -22,17 +27,18 @@ Inside of your Astro project, you'll see the following folders and files:
 
 ```
 ├── public/
+├── src/
 │   └── Images/
 │        ├──[Project_1]
 │        │       ├──Image1.png
 │        │       └──Image2.png
 │        ├──[Project_2]
 │        └──[Project_n]
-├── src/
 │   ├── components/
 │   ├── layouts/
-│   └── pages/
-│    	└── Obsidian-Posts
+│   ├── pages/
+│   └── content/
+│    	└── blogPost
 │               └──Project_1.md
 ├── astro.config.mjs
 ├── README.md
@@ -40,9 +46,9 @@ Inside of your Astro project, you'll see the following folders and files:
 └── tsconfig.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Astro looks for `.astro` or `.md` files in the `src/content/` directory. Each page is exposed as a route based on its file name.
 
-Each `.md` file have a dedicated folder in the `public/Images` folder where you can store your static assets so that those dont get mixed up.
+Each `.md` file have a dedicated folder in the `src/Images` folder where you can store your static assets so that those dont get mixed up. It is stored in src to have image optimization.
 
 ## 🧞 Commands
 
@@ -85,14 +91,13 @@ This template will have to be added to every note you wich to expose. It will le
 
 ```md
 ---
- 
-layout: '../../layouts/BlogPost.astro'
+
 title: {{title}}
 description: 
 date: {{date}} {{time}}
 tags: 
 - 
-heroImage: /Images/{{title}}/{{title}}_hero.png
+heroImage: ../../Images/{{title}}/{{title}}_hero.png
 
 ---
 
@@ -112,11 +117,12 @@ Once you have your template you wont need to touch it.
 - Inside the Permanent Note folder, create the new file & use the template.
 - Create a folder that have the same name as your new note in the Images folder at the root of you vault. 
   - ⚠️Make sure to not use space and replace them with `_` ⚠️
+  - ⚠️Make sure to not use special character (such as `&, \, etc`) in the images name or path ! As of now the optimization library escape those character and break the image optimization. ⚠️
 - Make some modification to the auto generated metadatas. 
   - Description
   - tags
   - heroImage ( Image that will be used to illustrate your topic)
-    - Make sure to change the path name to correspond to your image folder of this note ! 
+    - Make sure to change the path name to correspond to your image folder of this note ! Also on the beginning of every path add `../../`. It will work the same inside obsidian and is a requirement for the path in the astro structure. I'm trying to find a better alternative for it. 
 
 Below is an example of post, yours should have a similar structure :
 
@@ -124,7 +130,7 @@ Below is an example of post, yours should have a similar structure :
 
 Every time you wish to refer to an image for the page, your will have to follow this structure :
 
-`/Images/[Project_name]/[Image_name]` 
+`../../Images/[Project_name]/[Image_name]` 
 
 It will be important once it is deployed to Astro.
 
