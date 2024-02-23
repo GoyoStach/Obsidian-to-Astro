@@ -7,11 +7,7 @@ import tailwind from '@astrojs/tailwind'
 // https://astro.build/config
 export default defineConfig({
   site: 'https://example.com',
-  integrations: [
-    sitemap(),
-    react(),
-    tailwind()
-  ],
+  integrations: [sitemap(), react(), tailwind()],
   markdown: {
     extendDefaultPlugins: true,
     rehypePlugins: [
@@ -27,15 +23,14 @@ export default defineConfig({
           img: 'border border-expresso-300 rounded-xl mb-6 w-full h-full',
           p: 'mb-6',
           a: 'underline underline-offset-2 text-expresso-300 hover:text-expresso-200',
-          ul:'list-disc list-inside pl-2',
-          ol:'list-decimal list-inside pl-2',
-          blockquote:'italic flex justify-end',
-          table:'border-2 border-collapse my-2',
-          th:'border-2 p-2 text-lg',
-          td:'border-2 text-center p-2',    
+          ul: 'list-disc list-inside pl-2',
+          ol: 'list-decimal list-inside pl-2',
+          blockquote: 'italic flex justify-end',
+          table: 'border-2 border-collapse my-2',
+          th: 'border-2 p-2 text-lg',
+          td: 'border-2 text-center p-2'
         }
       ]
     ]
   }
 })
-

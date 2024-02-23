@@ -182,30 +182,9 @@ declare module 'astro:content' {
   collection: "blogPost";
   data: InferEntrySchema<"blogPost">
 } & { render(): Render[".md"] };
-"Advise for life.md": {
-	id: "Advise for life.md";
-  slug: "advise-for-life";
-  body: string;
-  collection: "blogPost";
-  data: InferEntrySchema<"blogPost">
-} & { render(): Render[".md"] };
 "Eslint & Prettier.md": {
 	id: "Eslint & Prettier.md";
   slug: "eslint--prettier";
-  body: string;
-  collection: "blogPost";
-  data: InferEntrySchema<"blogPost">
-} & { render(): Render[".md"] };
-"Gin Collection.md": {
-	id: "Gin Collection.md";
-  slug: "gin-collection";
-  body: string;
-  collection: "blogPost";
-  data: InferEntrySchema<"blogPost">
-} & { render(): Render[".md"] };
-"Make your own sake.md": {
-	id: "Make your own sake.md";
-  slug: "make-your-own-sake";
   body: string;
   collection: "blogPost";
   data: InferEntrySchema<"blogPost">
@@ -257,7 +236,14 @@ declare module 'astro:content' {
 	};
 
 	type DataEntryMap = {
-		
+		"phraseData": {
+"phrase": {
+	id: "phrase";
+  collection: "phraseData";
+  data: InferEntrySchema<"phraseData">
+};
+};
+
 	};
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;

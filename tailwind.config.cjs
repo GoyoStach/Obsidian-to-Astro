@@ -10,7 +10,7 @@ module.exports = {
       fontFamily: {
         mplus: ["'M PLUS Rounded 1c'", 'Verdana', 'sans-serif'],
         silkScreen: ["'Silkscreen'", 'Verdana', 'sans-serif'],
-        oswald: ["'Oswald'",'Verdana', 'sans-serif']
+        oswald: ["'Oswald'", 'Verdana', 'sans-serif']
       },
       colors: {
         expresso: {
