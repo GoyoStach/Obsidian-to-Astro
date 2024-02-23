@@ -21,7 +21,7 @@ interface Props {
 }
 
 const { entry } = Astro.props
-const { Content } = await entry.render()
+const { Content,headings } = await entry.render()
 ---
 
 <!DOCTYPE html>
@@ -32,8 +32,8 @@ const { Content } = await entry.render()
 
   <Body>
     <Header transition:persist="nav"/>
-    <main class="pt-[56px] relative">
-      <MyContent className="pt-5 xl:max-w-4xl">
+    <main class="pt-[56px]">
+      <MyContent className="pt-5 relative w-full">
         <div class="mb-8">
           {
             entry.data.heroImage && (
@@ -55,8 +55,86 @@ const { Content } = await entry.render()
         <a class="fixed bottom-4 right-4 justify-center rounded-md border border-expresso-400 dark:border-expresso-100 text-expresso-400 dark:text-expresso-100 p-2 text-sm font-medium shadow-sm hover:bg-expresso-200 dark:hover:bg-expresso-300 focus:outline-none focus:ring-2 focus:ring-expresso-200 focus:dark:ring-expresso-300 focus:ring-offset-2 focus:ring-offset-expresso-100 transition-all" href="#title">
           <IoChevronUp className="h-5 w-5"/>
         </a>
+      
+        
+        <div class="hidden lg:flex absolute top-0 left-0 ml-[100%] h-fit " data-pagefind-ignore>          
+        <div id="_anchor" class="px-4 fixed whitespace-nowrap  ">
+          <h1 class="dark:text-white text-xl my-4 ">On This Page</h1>
+          {headings.map((heading) => {
+            let Heading: any = `h${heading.depth}`;
+            let className = `peer border-l-2 border-l-expresso-400 dark:border-l-expresso-100 `
+            switch (heading.depth) {
+              case 2:
+                className += `pl-2`;
+                break;
+              case 3:
+                className += `pl-4`;
+                break;
+              case 4:
+                className += `pl-6`;
+                break;
+              case 5:
+                className += `pl-8`;
+                break;
+              case 6:
+                className += `pl-10`;
+                break;
+              default:
+              className +=`pl-1`
+                break;
+            }
+            return <Heading class={className}>
+              <a href={`#${heading.slug}`} class="block py-1 text-expresso-500 dark:text-expresso-100 hover:text-expresso-200 dark:hover:text-expresso-300 transition-colors">
+                {heading.text}
+              </a>
+            </Heading>
+          })}
+          <span id="_hover" class="peer-hover:border-l-expresso-200 dark:peer-hover:border-l-expresso-300 display absolute h-8 border-l-2 border-transparent -translate-y-40 transition-all" aria-hidden="true"></span>
+          <span id="_active" class="hidden border-l-expresso-300 dark:border-l-expresso-200 display absolute h-8 border-l-2 border-transparent -translate-y-40 transition-all" aria-hidden="true"></span>
+          <script>
+            const headings = document.querySelectorAll("#_anchor h2, #_anchor h3, #_anchor h4, #_anchor h5, #_anchor h6");
+            const hover = document.getElementById("_hover");
+            const active = document.getElementById("_active");
+
+
+            let oldHash ='';
+            headings.forEach((heading, i) => {
+              heading.addEventListener("mouseenter", () => {
+                hover.style.transform = `translateY(${(i - headings.length) * 32}px)`;
+              });
+            });
+            function select(ev) {
+            const hash = window.location.hash;
+            if (hash) {
+              if (oldHash !== '' ){
+                const oldHeading = document.querySelector(`#_anchor [href="${oldHash}"]`)
+                oldHeading.classList.remove('dark:!text-white', '!text-black', 'font-bold')
+              }
+              const heading = document.querySelector(`#_anchor [href="${hash}"]`).parentElement
+              if (heading) {
+                active.style.display = 'block'
+                active.style.transform = `translateY(${(Array.from(headings).indexOf(heading) - headings.length) * 32}px)`;
+                heading.firstElementChild.classList.add('dark:!text-white', '!text-black', 'font-bold')
+                oldHash = hash
+              }
+            } else {
+              active.style.display = 'none'
+            }
+          }
+            window.addEventListener("popstate", (event) => select(event));
+          </script>
+        </div>
+     
+    </div>
       </MyContent>
+
+      
+      
     </main>
     <Footer />
   </Body>
 </html>
+
+<script >
+  
+</script>

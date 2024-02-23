@@ -44,7 +44,7 @@ const posts = Array.from((await getCollection('blogPost'))).sort(
                   <a href={'/' + post.slug}>
                     <Image
                       class="border border-slate-300 dark:border-zinc-700 rounded-xl"
-                      src={post.data.heroImage as string}
+                      src={post.data.heroImage}
                       width={720 * 2}
                       height={500}
                       alt="Thumbnail"
