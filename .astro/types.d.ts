@@ -203,6 +203,20 @@ declare module 'astro:content' {
   collection: "blogPost";
   data: InferEntrySchema<"blogPost">
 } & { render(): Render[".md"] };
+"Parallax with React Spring.md": {
+	id: "Parallax with React Spring.md";
+  slug: "parallax-with-react-spring";
+  body: string;
+  collection: "blogPost";
+  data: InferEntrySchema<"blogPost">
+} & { render(): Render[".md"] };
+"Rendering strategies in NextJS.md": {
+	id: "Rendering strategies in NextJS.md";
+  slug: "rendering-strategies-in-nextjs";
+  body: string;
+  collection: "blogPost";
+  data: InferEntrySchema<"blogPost">
+} & { render(): Render[".md"] };
 "Style Page.md": {
 	id: "Style Page.md";
   slug: "style-page";
