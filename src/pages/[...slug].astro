@@ -61,7 +61,7 @@ const { Content,headings } = await entry.render()
         <div id="_anchor" class="px-4 fixed whitespace-nowrap  ">
           <h1 class="dark:text-white text-xl my-4 ">On This Page</h1>
           {headings.map((heading) => {
-            let Heading: any = `h${heading.depth}`;
+            const Heading = `h${heading.depth}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
             let className = `peer border-l-2 border-l-expresso-400 dark:border-l-expresso-100 `
             switch (heading.depth) {
               case 2:
