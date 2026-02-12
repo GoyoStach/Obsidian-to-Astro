@@ -1,0 +1,600 @@
+# Development Guidelines
+
+## Development Workflow
+
+### Getting Started
+```bash
+# Clone repository
+git clone <repository-url>
+
+# Initialize git submodules (content and images)
+git submodule update --init --recursive
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev  # Runs on localhost:3000
+```
+
+### Development Commands
+```bash
+npm run dev      # Start dev server with hot reload
+npm run build    # Build for production (output: dist/)
+npm run preview  # Preview production build locally
+npm run astro    # Direct access to Astro CLI
+```
+
+## Code Organization
+
+### Component Guidelines
+
+#### Astro Components (.astro)
+Use for **static content** and layouts:
+- Layout components (CategoryPosts.astro)
+- Static UI elements (Footer.astro, Header.astro)
+- SEO components (BaseHead.astro)
+- Content wrappers (Body.astro, MyContent.astro)
+
+**Location:** `src/components/`, `src/layouts/`
+
+**Pattern:**
+```astro
+---
+// Component logic (runs at build time)
+import { type CollectionEntry } from 'astro:content'
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+---
+
+<!-- Template (HTML) -->
+<div class="container">
+  <h1>{title}</h1>
+  <slot />
+</div>
+
+<style>
+  /* Component-scoped styles if needed */
+</style>
+```
+
+#### React Components (.tsx)
+Use for **interactive elements** that require client-side JavaScript:
+- Theme toggle (ThemeToggleButton.tsx)
+- Dropdown menus (DropdownMenu.tsx, DropdownMenuItem.tsx)
+- Form elements with state
+
+**Location:** `src/components/`
+
+**Hydration Strategy:**
+```astro
+<!-- Only hydrate when visible in viewport -->
+<ThemeToggleButton client:visible />
+
+<!-- Other options: -->
+<Component client:load />      <!-- Hydrate immediately -->
+<Component client:idle />      <!-- Hydrate when main thread is idle -->
+<Component client:only="react" /> <!-- Skip server render -->
+```
+
+**Pattern:**
+```tsx
+import { useState, useEffect } from 'react'
+
+interface Props {
+  initialValue?: string
+}
+
+export default function MyComponent({ initialValue = '' }: Props) {
+  const [value, setValue] = useState(initialValue)
+  
+  return (
+    <div className="my-component">
+      {/* Use className, not class */}
+    </div>
+  )
+}
+```
+
+### Page Structure
+
+#### Static Pages
+`src/pages/index.astro` - Homepage
+
+#### Dynamic Routes
+**Blog Posts:** `src/pages/[...slug].astro`
+- Catch-all route: matches any URL path
+- Uses `getStaticPaths()` to pre-render all posts at build time
+
+**Category Pages:** `src/pages/categories/[id].astro`
+- Dynamic parameter: `[id]` = tag name
+- Uses `getStaticPaths()` to generate page for each unique tag
+
+**Pattern:**
+```astro
+---
+import { getCollection } from 'astro:content'
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blogPost')
+  
+  return posts.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry }
+  }))
+}
+
+const { entry } = Astro.props
+const { Content, headings } = await entry.render()
+---
+
+<Content />
+```
+
+## Working with Content
+
+### Content Collections API
+
+**Never import markdown files directly.** Always use the Content Collections API:
+
+```typescript
+import { getCollection, type CollectionEntry } from 'astro:content'
+
+// Get all blog posts
+const allPosts = await getCollection('blogPost')
+
+// Filter posts
+const englishPosts = allPosts.filter(p => !p.data.tags.includes('FR'))
+
+// Sort by date
+const sortedPosts = allPosts.sort((a, b) => 
+  new Date(b.data.date) - new Date(a.data.date)
+)
+
+// Get single entry
+const entry = allPosts.find(p => p.slug === 'my-post')
+
+// Render markdown content
+const { Content, headings } = await entry.render()
+```
+
+### Type Definitions
+```typescript
+// Type for blog post entry
+type BlogPost = CollectionEntry<'blogPost'>
+
+// Access frontmatter (type-safe!)
+const title: string = entry.data.title
+const tags: string[] = entry.data.tags
+const heroImage: ImageMetadata = entry.data.heroImage
+```
+
+### Content Schema
+Located in `src/content/config.ts`:
+```typescript
+import { defineCollection, z } from 'astro:content'
+
+const blogPost = defineCollection({
+  type: 'content',
+  schema: ({ image }) => z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.string().optional(),
+    tags: z.array(z.string()),
+    heroImage: image()
+  })
+})
+```
+
+**When modifying schema:**
+1. Update the Zod schema in `config.ts`
+2. Update Obsidian frontmatter template
+3. Rebuild project to regenerate types
+
+## Styling Guidelines
+
+### Tailwind CSS
+
+**Use Tailwind utility classes** throughout the project:
+```astro
+<div class="max-w-3xl mx-auto px-8 py-4">
+  <h1 class="text-4xl font-bold text-expresso-200">Title</h1>
+</div>
+```
+
+### Custom Colors (Expresso Theme)
+Always use the custom color palette:
+```javascript
+// tailwind.config.cjs
+colors: {
+  expresso: {
+    100: '#DCD7C9', // Light background
+    200: '#DEA057', // Primary accent
+    300: '#A27B5C', // Secondary accent
+    400: '#3F4E4F', // Dark text
+    500: '#2C3639', // Dark background
+  }
+}
+```
+
+**Usage:**
+```html
+<!-- Light mode -->
+<div class="bg-expresso-100 text-expresso-500">
+
+<!-- Dark mode -->
+<div class="dark:bg-expresso-500 dark:text-expresso-100">
+```
+
+### Custom Fonts
+```javascript
+// tailwind.config.cjs
+fontFamily: {
+  mplus: ['"M PLUS Rounded 1c"', 'Verdana', 'sans-serif'],
+  silkScreen: ['Silkscreen', 'monospace'],
+  oswald: ['Oswald', 'sans-serif']
+}
+```
+
+**Usage:**
+- `font-mplus` - UI elements, body text
+- `font-silkScreen` - Large headings (h1, h2)
+- `font-oswald` - General text
+
+### Dark Mode
+**Always test both themes** when making UI changes.
+
+Theme is controlled by `dark` class on `<html>` element:
+```html
+<!-- Light mode -->
+<html lang="en">
+
+<!-- Dark mode -->
+<html lang="en" class="dark">
+```
+
+**Pattern:**
+```html
+<div class="bg-expresso-100 dark:bg-expresso-500 
+            text-expresso-500 dark:text-expresso-100">
+  Content
+</div>
+```
+
+### Responsive Design
+Mobile-first approach with Tailwind breakpoints:
+```html
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  <!-- 1 column mobile, 2 tablet, 3 desktop -->
+</div>
+```
+
+Breakpoints:
+- `sm`: 640px
+- `md`: 768px
+- `lg`: 1024px
+- `xl`: 1280px
+- `2xl`: 1536px
+
+### Markdown Auto-Styling
+Markdown elements automatically receive Tailwind classes via `rehype-add-classes`:
+
+```javascript
+// astro.config.mjs
+rehypePlugins: [
+  [addClasses, {
+    h1: 'text-4xl font-bold font-silkScreen text-expresso-200',
+    h2: 'text-2xl font-bold font-silkScreen text-expresso-300',
+    p: 'mb-6',
+    a: 'underline underline-offset-2 text-expresso-300 hover:text-expresso-200',
+    img: 'border border-expresso-300 rounded-xl mb-6 w-full h-full',
+  }]
+]
+```
+
+**No need to add classes to markdown content** - they're applied automatically.
+
+## Image Handling
+
+### Image Optimization
+Images in `src/` directory are automatically optimized by Astro:
+- Converted to modern formats (WebP)
+- Responsive sizes generated
+- Lazy loading applied
+
+**Location:** `src/Images/` (Git submodule)
+
+**Structure:**
+```
+src/Images/
+├── Post_Title_1/
+│   ├── Post_Title_1_hero.png
+│   ├── diagram.png
+│   └── screenshot.png
+├── Post_Title_2/
+└── Post_Title_n/
+```
+
+### Image Import Pattern
+```astro
+---
+import { Image } from 'astro:assets'
+import heroImage from '../../Images/My_Post/hero.png'
+---
+
+<Image 
+  src={heroImage} 
+  alt="Description"
+  width={1020}
+  height={510}
+/>
+```
+
+### Image Paths in Markdown
+In blog posts, images are referenced with relative paths:
+```markdown
+![Alt text](../../Images/Post_Name/image.png)
+```
+
+**Critical Rules:**
+1. Always use `../../Images/` prefix
+2. No spaces in folder/file names (use `_` instead)
+3. No special characters (`&`, `\`, etc.) - breaks optimization
+4. Each post has dedicated folder in `Images/`
+
+## Animation
+
+### Framer Motion
+Interactive animations use Framer Motion with custom variants.
+
+**Variants:** `src/utils/motion.ts`
+```typescript
+export const fadeIn = (direction, type, delay, duration) => ({
+  hidden: { /* ... */ },
+  show: { /* ... */ }
+})
+```
+
+**Usage:**
+```tsx
+import { motion } from 'framer-motion'
+import { fadeIn } from '../utils/motion'
+
+<motion.div
+  variants={fadeIn('up', 'tween', 0.2, 0.5)}
+  initial="hidden"
+  animate="show"
+>
+  Content
+</motion.div>
+```
+
+### View Transitions (Astro)
+Page transitions using CSS View Transition API:
+
+```astro
+---
+import { ViewTransitions } from 'astro:transitions'
+---
+
+<head>
+  <ViewTransitions />
+</head>
+
+<!-- Persist element across transitions -->
+<img transition:name="hero" src={...} />
+```
+
+**Shared element transitions** keep hero images smooth between pages.
+
+## TypeScript
+
+### Configuration
+`tsconfig.json` uses Astro's strict preset.
+
+### Type Imports
+```typescript
+import type { CollectionEntry } from 'astro:content'
+import type { ImageMetadata } from 'astro'
+
+// Use 'type' keyword for type-only imports
+```
+
+### Component Props
+Always define props interface:
+```typescript
+interface Props {
+  title: string
+  description?: string  // Optional
+  tags: string[]
+}
+
+const { title, description = 'Default', tags } = Astro.props
+```
+
+## Code Quality
+
+### ESLint
+Configuration: `.eslintrc.yml`
+- `eslint-plugin-astro` for Astro-specific rules
+- TypeScript parser
+
+**Run linting:**
+```bash
+npx eslint . --ext .js,.ts,.astro,.tsx
+```
+
+### Prettier
+Configuration: `.prettierrc`
+- `prettier-plugin-astro` for Astro formatting
+
+**Format code:**
+```bash
+npx prettier --write .
+```
+
+### Best Practices
+1. **Run lint before committing**
+2. **Format with Prettier**
+3. **Use TypeScript types** (avoid `any`)
+4. **Test both light and dark themes**
+5. **Test responsive breakpoints**
+6. **Keep components small and focused**
+7. **Use Astro components by default**, React only when needed
+8. **Minimize client-side JavaScript**
+
+## Git Workflow
+
+### Standard Workflow
+```bash
+# Make changes
+git add .
+git commit -m "feat: add new feature"
+git push origin main
+```
+
+Deployment happens automatically via Coolify pipeline.
+
+### Working with Submodules
+
+**Update content (blogPost):**
+```bash
+cd src/content/blogPost
+git pull origin main
+cd ../../..
+git add src/content/blogPost
+git commit -m "chore: update blog content"
+git push
+```
+
+**Update images:**
+```bash
+cd src/Images
+git pull origin main
+cd ../..
+git add src/Images
+git commit -m "chore: update images"
+git push
+```
+
+**Pull all submodules:**
+```bash
+git submodule update --remote --merge
+```
+
+### Important Submodule Notes
+- **Never modify submodules directly** in this repo
+- Make changes in their respective repositories
+- Then update submodule references in main repo
+- Submodules may be empty in fresh clones (need `git submodule update --init`)
+
+## Common Tasks
+
+### Adding a New Component
+```bash
+# 1. Create file
+touch src/components/NewComponent.astro  # or .tsx for React
+
+# 2. Define component
+# (See component patterns above)
+
+# 3. Import and use
+---
+import NewComponent from '../components/NewComponent.astro'
+---
+<NewComponent />
+```
+
+### Adding a New Page
+```bash
+# 1. Create in src/pages/
+touch src/pages/about.astro
+
+# 2. Page becomes route automatically
+# /about route now available
+```
+
+### Modifying Content Schema
+```bash
+# 1. Edit src/content/config.ts
+# 2. Update Obsidian template
+# 3. Rebuild to regenerate types
+npm run build
+```
+
+### Updating Site Configuration
+Edit `src/config.ts`:
+```typescript
+export const SITE_TITLE = 'New Title'
+export const SITE_DESCRIPTION = 'New description'
+export const MY_SITE = 'https://blog.goyostash.com/'
+```
+
+## Debugging
+
+### Dev Server Issues
+```bash
+# Clear cache and restart
+rm -rf node_modules/.astro
+npm run dev
+```
+
+### Build Errors
+```bash
+# Check TypeScript errors
+npx tsc --noEmit
+
+# Verbose build output
+npm run build -- --verbose
+```
+
+### Image Optimization Errors
+Common issues:
+- Special characters in filenames
+- Incorrect path (must use `../../Images/`)
+- Image file doesn't exist
+- Missing submodule initialization
+
+### Content Collection Errors
+- Schema validation failures → check frontmatter matches schema
+- Type errors → rebuild to regenerate types
+- Content not found → ensure submodules are initialized
+
+## Performance Optimization
+
+### Lighthouse Targets
+Aim for:
+- Performance: 95+
+- Accessibility: 100
+- Best Practices: 95+
+- SEO: 100
+
+### Optimization Checklist
+- [ ] Images optimized (use Astro Image component)
+- [ ] Minimal JavaScript (use Astro components when possible)
+- [ ] CSS purged (Tailwind automatic)
+- [ ] Fonts preloaded
+- [ ] Meta tags complete
+- [ ] Alt text on all images
+- [ ] Semantic HTML
+- [ ] Responsive design
+
+## VSCode Setup
+
+Recommended extensions:
+- `astro-build.astro-vscode` (Astro language support)
+- `bradlc.vscode-tailwindcss` (Tailwind IntelliSense)
+- `dbaeumer.vscode-eslint` (ESLint)
+- `esbenp.prettier-vscode` (Prettier)
+
+Settings:
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+```

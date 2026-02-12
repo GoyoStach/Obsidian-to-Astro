@@ -1,0 +1,575 @@
+# Content Management & Obsidian Workflow
+
+## Overview
+
+This project bridges Obsidian note-taking with web publishing. Content is authored in Obsidian using the Zettelkasten method, then published to the blog via Git submodules.
+
+## Content Structure
+
+### Obsidian Vault Structure
+```
+[Vault Name]/
+├── Upload_Script.ps1           # (Future) Automation script
+├── Permanent Notes/            # Blog posts go here
+│   ├── Post_Title_1.md
+│   ├── Post_Title_2.md
+│   └── Post_Title_n.md
+├── Images/                     # Image assets
+│   ├── Post_Title_1/
+│   │   ├── Post_Title_1_hero.png
+│   │   ├── diagram.png
+│   │   └── screenshot.png
+│   ├── Post_Title_2/
+│   └── Post_Title_n/
+└── Templates/
+    └── Permanent Note Template.md
+```
+
+### Astro Project Structure
+```
+src/
+├── content/
+│   └── blogPost/               # Git submodule → Obsidian-Posts repo
+│       ├── Post_Title_1.md
+│       ├── Post_Title_2.md
+│       └── Post_Title_n.md
+└── Images/                     # Git submodule → Obsidian-Images repo
+    ├── Post_Title_1/
+    ├── Post_Title_2/
+    └── Post_Title_n/
+```
+
+## Frontmatter Template
+
+Every blog post must include this frontmatter structure:
+
+```markdown
+---
+title: Post Title Here
+description: Brief summary of the post for SEO and social sharing
+date: 2024-01-15 14:30
+tags: 
+  - tag1
+  - tag2
+  - tag3
+heroImage: ../../Images/Post_Title_Here/Post_Title_Here_hero.png
+---
+
+# Post Title Here
+
+Your content goes here...
+
+#### References
+
+Tags: #reference #notes
+```
+
+### Frontmatter Field Reference
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | Yes | Post title (used in page title, navigation, card) |
+| `description` | string | Yes | SEO description (meta tags, social sharing) |
+| `date` | string | No | Publication date (format: YYYY-MM-DD HH:MM) |
+| `tags` | array | Yes | Categories/tags for filtering (lowercase recommended) |
+| `heroImage` | path | Yes | Featured image (must use `../../Images/` prefix) |
+
+### Schema Validation
+
+Content is validated against Zod schema in `src/content/config.ts`:
+
+```typescript
+const blogPost = defineCollection({
+  type: 'content',
+  schema: ({ image }) => z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.string().optional(),
+    tags: z.array(z.string()),
+    heroImage: image()
+  })
+})
+```
+
+**If frontmatter doesn't match schema, build will fail.**
+
+## Creating a New Blog Post
+
+### Step-by-Step Workflow
+
+#### 1. Create Note in Obsidian
+- Create new file in `Permanent Notes/` folder
+- Apply the Permanent Note Template
+- Use clear, descriptive filename (becomes URL slug)
+
+**Filename Rules:**
+- Replace spaces with underscores: `My_Post_Title.md`
+- No special characters: `&`, `\`, `@`, etc.
+- Use alphanumeric and underscore only
+- Example: `Building_Astro_Blog.md` → URL: `/building-astro-blog`
+
+#### 2. Create Image Folder
+- In Obsidian vault: `Images/My_Post_Title/`
+- Folder name must match post filename exactly
+- Add hero image: `My_Post_Title_hero.png`
+- Add any additional images used in post
+
+**Image Rules:**
+- No spaces in filenames (use `_`)
+- No special characters (`&`, `\`, etc.) - breaks optimization
+- Recommended formats: PNG, JPG, WebP
+- Hero image recommended size: 1020×510px (2:1 ratio)
+
+#### 3. Fill Out Frontmatter
+```markdown
+---
+title: Building an Astro Blog
+description: Learn how to build a performant blog with Astro and Obsidian integration
+date: 2024-02-12 15:30
+tags: 
+  - astro
+  - web-development
+  - tutorial
+heroImage: ../../Images/Building_Astro_Blog/Building_Astro_Blog_hero.png
+---
+```
+
+**Important:**
+- `description` should be 120-160 characters for optimal SEO
+- `tags` are case-sensitive but lowercase recommended
+- Special tag `FR` filters post from homepage (French content)
+- `heroImage` path must start with `../../Images/`
+
+#### 4. Write Content
+- Use standard Markdown syntax
+- Reference images: `![Alt text](../../Images/Post_Name/image.png)`
+- Use headings for structure (auto-generates table of contents)
+- Add references section at bottom
+
+**Supported Markdown:**
+- Headings: `#` to `######`
+- Lists: `- item` or `1. item`
+- Links: `[text](url)`
+- Images: `![alt](path)`
+- Code blocks: ` ```language `
+- Blockquotes: `> quote`
+- Tables: Standard GFM tables
+- Bold: `**text**`
+- Italic: `*text*`
+
+#### 5. Sync to Astro Project
+
+**Manual Method (Current):**
+
+1. Copy markdown file:
+   ```bash
+   # From Obsidian vault
+   cp "Permanent Notes/My_Post.md" \
+      "/path/to/Obsidian-to-Astro/src/content/blogPost/"
+   ```
+
+2. Copy images folder:
+   ```bash
+   cp -r "Images/My_Post" \
+         "/path/to/Obsidian-to-Astro/src/Images/"
+   ```
+
+3. Commit to submodule repositories:
+   ```bash
+   # In blogPost submodule
+   cd src/content/blogPost
+   git add My_Post.md
+   git commit -m "Add: My Post"
+   git push origin main
+   
+   # In Images submodule
+   cd ../../Images
+   git add My_Post/
+   git commit -m "Add: My Post images"
+   git push origin main
+   ```
+
+4. Update main repository:
+   ```bash
+   cd ../..
+   git add src/content/blogPost src/Images
+   git commit -m "Update content: add My Post"
+   git push origin main
+   ```
+
+**Automated Method (Planned):**
+PowerShell script mentioned in README but not yet implemented.
+
+## Image Handling
+
+### Image Path Convention
+All image paths in Obsidian must use this exact pattern:
+```markdown
+![Description](../../Images/Post_Name/image_name.png)
+```
+
+**Why this specific path?**
+- Works in Obsidian preview (relative to note location)
+- Works in Astro build (relative to content collection)
+- Enables automatic image optimization
+
+### Image Organization
+```
+Images/
+└── Post_Title/              # One folder per post
+    ├── Post_Title_hero.png  # Featured/hero image (required)
+    ├── diagram_1.png        # Additional images
+    ├── screenshot.png
+    └── photo.jpg
+```
+
+### Hero Image Guidelines
+- **Purpose:** Featured image shown on homepage grid and post header
+- **Dimensions:** 1020×510px (2:1 aspect ratio recommended)
+- **Format:** PNG or JPG
+- **Naming:** `{Post_Title}_hero.png`
+- **File size:** Optimize before adding (< 500KB recommended)
+
+### Content Images
+- Use descriptive filenames: `architecture_diagram.png` not `image1.png`
+- Add meaningful alt text for accessibility
+- Keep reasonable dimensions (< 2000px width)
+- Compress before adding to vault
+
+### Image Optimization
+Astro automatically optimizes images in `src/Images/`:
+- Converts to WebP format
+- Generates responsive sizes
+- Applies lazy loading
+- Preserves original for fallback
+
+**No manual optimization needed** - Astro handles it at build time.
+
+## Special Tags
+
+### Language Filtering
+- `FR` tag - Marks French language posts
+  - Filtered out from homepage
+  - Still accessible via direct URL
+  - Still appears in category pages
+
+### Tag Naming Conventions
+- Use lowercase: `web-development` not `Web-Development`
+- Use hyphens for multi-word: `machine-learning` not `machine_learning`
+- Be consistent: pick one naming style and stick to it
+- Limit to 3-5 tags per post for clarity
+
+### Common Tag Examples
+- Technology: `astro`, `react`, `typescript`, `tailwind`
+- Category: `tutorial`, `guide`, `opinion`, `review`
+- Topic: `web-development`, `machine-learning`, `productivity`
+- Level: `beginner`, `advanced`
+
+## Content Best Practices
+
+### Writing Guidelines
+1. **Start with a clear introduction** - explain what the post covers
+2. **Use headings to structure content** - creates auto-generated TOC
+3. **Include code examples** when relevant
+4. **Add images to illustrate concepts** - improve comprehension
+5. **Link to external resources** - provide additional context
+6. **End with references** - cite sources and related materials
+
+### SEO Optimization
+- **Title:** 50-60 characters, descriptive and keyword-rich
+- **Description:** 120-160 characters, compelling summary
+- **Headings:** Use logical hierarchy (H1 → H2 → H3)
+- **Alt text:** Describe images for screen readers and SEO
+- **Internal links:** Link to related posts when relevant
+
+### Accessibility
+- Use descriptive link text (not "click here")
+- Add alt text to all images
+- Use proper heading hierarchy
+- Keep paragraphs concise
+- Use lists for scannable content
+- Ensure sufficient color contrast (handled by theme)
+
+### Markdown Style
+```markdown
+# Main Title (H1)
+Use only once at the top
+
+## Major Section (H2)
+Primary content divisions
+
+### Subsection (H3)
+Nested topics
+
+#### Detail (H4)
+Specific points
+
+**Bold** for emphasis
+*Italic* for subtle emphasis
+
+- Bullet lists for unordered items
+1. Numbered lists for sequential steps
+
+> Blockquotes for important callouts or quotes
+
+`Inline code` for commands and variables
+
+```language
+Code blocks for multi-line code
+```
+
+[Descriptive link text](https://example.com)
+
+![Descriptive alt text](../../Images/Post/image.png)
+```
+
+## Git Submodules
+
+### Understanding Submodules
+This project uses two Git submodules:
+1. **Obsidian-Posts** → `src/content/blogPost/`
+2. **Obsidian-Images** → `src/Images/`
+
+**Purpose:** Separate content from application code, allowing independent version control.
+
+### Submodule Repositories
+- Posts: `https://github.com/GoyoStach/Obsidian-Posts.git`
+- Images: `https://github.com/GoyoStach/Obsidian-Images.git`
+
+### Working with Submodules
+
+#### Initial Setup (Fresh Clone)
+```bash
+git clone <main-repo-url>
+git submodule update --init --recursive
+```
+
+#### Update Submodules (Pull Latest Content)
+```bash
+# Update all submodules
+git submodule update --remote --merge
+
+# Or update individually
+cd src/content/blogPost
+git pull origin main
+cd ../..
+
+cd src/Images
+git pull origin main
+cd ../..
+```
+
+#### Add/Modify Content
+```bash
+# 1. Work in submodule
+cd src/content/blogPost
+# Add or modify files
+git add .
+git commit -m "Add new post"
+git push origin main
+
+# 2. Update parent repo reference
+cd ../..
+git add src/content/blogPost
+git commit -m "Update content reference"
+git push origin main
+```
+
+#### Important Submodule Rules
+- **Never modify submodules directly** in this repository
+- Always commit/push from within the submodule first
+- Then commit the reference update in parent repo
+- Submodules track specific commits (not branches)
+
+### Troubleshooting Submodules
+
+**Submodules are empty:**
+```bash
+git submodule update --init --recursive
+```
+
+**Submodule detached HEAD state:**
+```bash
+cd src/content/blogPost
+git checkout main
+git pull
+```
+
+**Reset submodules to tracked commit:**
+```bash
+git submodule update --force --recursive
+```
+
+## Content Deployment
+
+### Deployment Pipeline
+1. Update content in Obsidian vault
+2. Copy to Astro project (manual or scripted)
+3. Commit to submodule repositories
+4. Update parent repository references
+5. Push to remote (triggers Coolify deployment)
+6. Coolify builds and deploys to https://blog.goyostash.com/
+
+### Build Process
+```bash
+# Local build to test
+npm run build
+
+# Check for errors
+# - Frontmatter validation errors
+# - Missing images
+# - Broken links
+# - TypeScript errors
+```
+
+### Deployment Checklist
+- [ ] Frontmatter complete and valid
+- [ ] Hero image exists and correct path
+- [ ] All referenced images exist
+- [ ] No special characters in filenames
+- [ ] No broken links
+- [ ] Build completes without errors
+- [ ] Preview looks correct
+- [ ] Both light and dark themes tested
+
+## Testing New Content Locally
+
+```bash
+# Start dev server
+npm run dev
+
+# Navigate to:
+# - Homepage: http://localhost:3000/
+# - Your post: http://localhost:3000/your-post-slug
+# - Category: http://localhost:3000/categories/your-tag
+
+# Check:
+# - Hero image displays correctly
+# - Content images load
+# - Table of contents generates
+# - Formatting looks good
+# - Links work
+# - Both light/dark themes
+# - Mobile responsive view
+```
+
+## Content Migration
+
+### From Other Platforms
+If migrating content from another blog platform:
+
+1. **Convert to Markdown**
+   - Use tools like Pandoc or platform-specific exporters
+   - Clean up formatting
+
+2. **Add Frontmatter**
+   - Use the template
+   - Extract metadata from original posts
+
+3. **Download Images**
+   - Organize in folder structure
+   - Rename to avoid special characters
+   - Update image paths to use `../../Images/` pattern
+
+4. **Update Links**
+   - Convert absolute URLs to relative where applicable
+   - Update internal links to new slug format
+
+5. **Test Each Post**
+   - Build locally
+   - Check all images load
+   - Verify formatting
+
+## Common Issues & Solutions
+
+### Build Fails: "Invalid frontmatter"
+**Problem:** Frontmatter doesn't match schema  
+**Solution:** Check all required fields present, correct types
+
+### Build Fails: "Image not found"
+**Problem:** Image path incorrect or file missing  
+**Solution:** 
+- Verify image exists in `src/Images/Post_Name/`
+- Check path starts with `../../Images/`
+- Ensure no typos in filename
+
+### Images Don't Optimize
+**Problem:** Special characters in filename  
+**Solution:** Rename files to remove `&`, `\`, `@`, spaces, etc.
+
+### Post Not Appearing
+**Problem:** Several possibilities  
+**Solutions:**
+- Check submodule is initialized
+- Verify file is in `src/content/blogPost/`
+- Ensure `.md` extension
+- Check frontmatter is valid
+- Rebuild project
+
+### Hero Image Wrong Dimensions
+**Problem:** Image stretched or cropped badly  
+**Solution:** Use 2:1 aspect ratio (1020×510px recommended)
+
+### Table of Contents Empty
+**Problem:** No headings in content  
+**Solution:** Add headings (H2, H3, etc.) to structure content
+
+### Category Page 404
+**Problem:** Tag name mismatch  
+**Solution:** Tags are case-sensitive, use exact tag name from frontmatter
+
+## Advanced Content Features
+
+### Code Syntax Highlighting
+Use fenced code blocks with language identifier:
+````markdown
+```typescript
+const greeting: string = "Hello, world!"
+console.log(greeting)
+```
+````
+
+Supported languages: javascript, typescript, python, bash, css, html, json, yaml, and more.
+
+### Tables
+Use GitHub-Flavored Markdown table syntax:
+```markdown
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Data     | Data     | Data     |
+| Data     | Data     | Data     |
+```
+
+Automatically styled with borders and padding.
+
+### Blockquotes
+```markdown
+> Important note or quote goes here.
+> Can span multiple lines.
+```
+
+Styled italic and right-aligned.
+
+### Internal Links
+Link to other posts:
+```markdown
+Check out my [previous post](/other-post-slug) for more details.
+```
+
+Link to categories:
+```markdown
+See all [web development posts](/categories/web-development).
+```
+
+## Future Enhancements
+
+### Planned Features
+- Automation script for syncing Obsidian → Astro
+- RSS feed integration
+- Search functionality
+- Related posts suggestions
+- Reading time estimates
+- Comment system integration
+
+### Content Ideas to Track
+The `phraseData` collection exists but is unused. Future feature could display random life advice quotes on pages.
