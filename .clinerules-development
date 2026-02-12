@@ -1,5 +1,29 @@
 # Development Guidelines
 
+## ⚠️ CRITICAL: Development Mode Rules
+
+### For AI Assistants:
+
+**NEVER run these commands without explicit permission:**
+- ❌ `npm run build` - Uses excessive tokens for image optimization
+- ❌ `npm run preview` - Requires build first
+
+**ALWAYS ask permission before running:**
+- ⚠️ `npm run dev` - Ask user before starting dev server
+- After permission, use `timeout 30` to limit execution time
+- Example: `timeout 30 npm run dev 2>&1 | head -50`
+
+**Preferred verification methods:**
+- ✅ Read and analyze code files directly
+- ✅ Use `npx tsc --noEmit` for TypeScript checking
+- ✅ Use static analysis tools
+- ✅ Review component structure without execution
+
+### Why These Rules Exist:
+- Build process optimizes 72+ images (very token-intensive)
+- Dev server should only run when testing is absolutely necessary
+- Most verification can be done through code analysis
+
 ## Development Workflow
 
 ### Getting Started
@@ -13,16 +37,17 @@ git submodule update --init --recursive
 # Install dependencies
 npm install
 
-# Start development server
-npm run dev  # Runs on localhost:3000
+# Start development server (ASK PERMISSION FIRST)
+npm run dev  # Runs on localhost:4321
 ```
 
 ### Development Commands
 ```bash
-npm run dev      # Start dev server with hot reload
-npm run build    # Build for production (output: dist/)
-npm run preview  # Preview production build locally
-npm run astro    # Direct access to Astro CLI
+npm run dev      # Dev server (ASK PERMISSION FIRST - token intensive)
+npm run build    # NEVER USE - token intensive, CI/CD only
+npm run preview  # Preview build (requires build, avoid)
+npm run astro    # Direct Astro CLI access (safe)
+npx tsc --noEmit # TypeScript check (PREFERRED for verification)
 ```
 
 ## Code Organization
