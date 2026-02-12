@@ -1,8 +1,8 @@
-import addClasses from 'rehype-add-classes'
 import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
 import tailwind from '@astrojs/tailwind'
+import { rehypeAddClasses } from './src/utils/rehype-add-classes.js'
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,7 +12,7 @@ export default defineConfig({
     extendDefaultPlugins: true,
     rehypePlugins: [
       [
-        addClasses,
+        rehypeAddClasses,
         {
           h1: 'text-4xl font-bold font-silkScreen text-expresso-200',
           h2: 'text-2xl font-bold font-silkScreen text-expresso-300',
