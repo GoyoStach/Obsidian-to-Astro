@@ -1,6 +1,7 @@
 # build output
 dist/
 .unlighthouse/
+.astro/
 
 # dependencies
 node_modules/
