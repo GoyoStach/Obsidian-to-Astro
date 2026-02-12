@@ -330,6 +330,12 @@ Pagination uses Astro's built-in pagination API with:
 2. ⚠️ **ASK BEFORE STARTING DEV SERVER** - Always request permission before running `npm run dev`
 3. ⚠️ **Stop dev server after verification** - Use timeout or Ctrl+C, don't leave it running
 
+**Git Operations:**
+1. 🚨 **ALWAYS ASK BEFORE COMMITTING** - Never run `git commit` without explicit user permission
+2. 🚨 **ALWAYS ASK BEFORE PUSHING** - Never run `git push` without explicit user permission
+3. ⚠️ **Stage files first** - Show user what will be committed (`git status`)
+4. ⚠️ **Present commit message** - Let user review before committing
+
 **Testing:**
 - Use `npm run dev` for development testing only (with permission)
 - For quick checks, read files and use TypeScript checking instead

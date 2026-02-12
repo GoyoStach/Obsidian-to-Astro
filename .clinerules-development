@@ -7,11 +7,25 @@
 **NEVER run these commands without explicit permission:**
 - ❌ `npm run build` - Uses excessive tokens for image optimization
 - ❌ `npm run preview` - Requires build first
+- 🚨 `git commit` - ALWAYS ask user permission first
+- 🚨 `git push` - ALWAYS ask user permission first
+- 🚨 `git merge` - ALWAYS ask user permission first
+- 🚨 `git rebase` - ALWAYS ask user permission first
 
 **ALWAYS ask permission before running:**
 - ⚠️ `npm run dev` - Ask user before starting dev server
 - After permission, use `timeout 30` to limit execution time
 - Example: `timeout 30 npm run dev 2>&1 | head -50`
+
+**Git Workflow (Requires Permission):**
+1. Make code changes
+2. Run `git add -A && git status` - Show user what changed
+3. **ASK USER:** "Ready to commit these changes?"
+4. If yes, present commit message for review
+5. **ASK USER:** "Approve this commit message?"
+6. If yes, commit
+7. **ASK USER:** "Ready to push to remote?"
+8. If yes, push
 
 **Preferred verification methods:**
 - ✅ Read and analyze code files directly
