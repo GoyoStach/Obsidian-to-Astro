@@ -323,6 +323,18 @@ Pagination uses Astro's built-in pagination API with:
 
 ## Important Context for AI Assistants
 
+### CRITICAL DEVELOPMENT RULES:
+
+**Development Mode:**
+1. ⚠️ **ALWAYS USE DEV MODE** - Never run `npm run build` (uses too many tokens)
+2. ⚠️ **ASK BEFORE STARTING DEV SERVER** - Always request permission before running `npm run dev`
+3. ⚠️ **Stop dev server after verification** - Use timeout or Ctrl+C, don't leave it running
+
+**Testing:**
+- Use `npm run dev` for development testing only (with permission)
+- For quick checks, read files and use TypeScript checking instead
+- Build process should only be run in CI/CD pipeline
+
 ### When Working on This Project:
 1. **Always create/update session file** at start of new session
 2. **Never modify git submodules directly** - they're managed separately

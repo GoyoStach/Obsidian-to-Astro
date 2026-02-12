@@ -100,25 +100,35 @@ const { Content,headings } = await entry.render()
             let oldHash ='';
             headings.forEach((heading, i) => {
               heading.addEventListener("mouseenter", () => {
-                hover.style.transform = `translateY(${(i - headings.length) * 32}px)`;
+                if (hover) {
+                  hover.style.transform = `translateY(${(i - headings.length) * 32}px)`;
+                }
               });
             });
-            function select(ev) {
+            function select(ev: Event) {
             const hash = window.location.hash;
             if (hash) {
               if (oldHash !== '' ){
                 const oldHeading = document.querySelector(`#_anchor [href="${oldHash}"]`)
-                oldHeading.classList.remove('dark:!text-white', '!text-black', 'font-bold')
+                if (oldHeading) {
+                  oldHeading.classList.remove('dark:!text-white', '!text-black', 'font-bold')
+                }
               }
-              const heading = document.querySelector(`#_anchor [href="${hash}"]`).parentElement
-              if (heading) {
+              const headingLink = document.querySelector(`#_anchor [href="${hash}"]`)
+              const heading = headingLink?.parentElement
+              if (heading && active) {
                 active.style.display = 'block'
                 active.style.transform = `translateY(${(Array.from(headings).indexOf(heading) - headings.length) * 32}px)`;
-                heading.firstElementChild.classList.add('dark:!text-white', '!text-black', 'font-bold')
+                const firstChild = heading.firstElementChild
+                if (firstChild) {
+                  firstChild.classList.add('dark:!text-white', '!text-black', 'font-bold')
+                }
                 oldHash = hash
               }
             } else {
-              active.style.display = 'none'
+              if (active) {
+                active.style.display = 'none'
+              }
             }
           }
             window.addEventListener("popstate", (event) => select(event));
