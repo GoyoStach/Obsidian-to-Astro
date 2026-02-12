@@ -203,17 +203,14 @@ These should be separate sessions with dedicated planning.
 ### Astro 4 → 5
 
 1. **Content Collections:**
-
    - Schema definitions may change
    - Image handling in frontmatter
 
 2. **View Transitions:**
-
    - API improvements
    - Migration guide available
 
 3. **Image Optimization:**
-
    - Sharp integration changes
    - New `astro:assets` features
 
