@@ -64,8 +64,10 @@ All commands are run from the root of the project, from a terminal:
 
 ## 🚀Deploying
 
-I would advide to push your code to your own git repository.
-I used [Vercel](https://vercel.com/dashboard) to deploy. It is a free & easy to setup option as long as you are not using your website for commercial use.
+The blog is deployed on a VPS using Coolify with automated deployment pipelines.
+Live site: https://blog.goyostash.com/
+
+Push your changes to the git repository and the deployment pipeline will automatically build and deploy the site.
 
 ## Obsidian Setup
 
