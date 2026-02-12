@@ -98,6 +98,12 @@ This upgrade provides:
 - Zero TypeScript compilation errors
 - Project structure unchanged - no breaking changes to existing code
 
+### Git Configuration Improvements
+
+- Added `.astro/` folder to .gitignore (framework-generated files)
+- Removed `.astro/types.d.ts` from git tracking
+- Created technical documentation in feature/astro-5-upgrade.md
+
 ## Status
 
 ✅ Upgrade Complete - All objectives achieved
