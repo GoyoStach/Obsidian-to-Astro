@@ -13,7 +13,8 @@ import { enhanceFrontmatter } from './frontmatter.js'
 export async function processFiles(
   filePaths: string[],
   targetDir: string,
-  imageDir: string
+  imageDir: string,
+  vaultRoot: string
 ): Promise<ProcessingStats> {
   const startTime = Date.now()
   const stats: ProcessingStats = {
@@ -48,7 +49,8 @@ export async function processFiles(
         transformResult.content,
         filePath,
         imageDir,
-        existingImageFiles
+        existingImageFiles,
+        vaultRoot
       )
       stats.imagesCopied += imageResult.imagesCopied
       stats.imagesDeduplicated += imageResult.imagesDeduplicated

@@ -58,7 +58,8 @@ export async function syncCommand(): Promise<void> {
   const stats = await processFiles(
     result.exposedFiles,
     config.projectPath,
-    config.imagePath
+    config.imagePath,
+    config.obsidianPath
   )
 
   // Phase 4: Display summary

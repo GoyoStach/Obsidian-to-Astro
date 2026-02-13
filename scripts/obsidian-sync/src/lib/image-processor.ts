@@ -20,10 +20,12 @@ export interface ImageProcessResult {
  */
 export function extractImageReferences(
   content: string,
-  sourceFilePath: string
+  sourceFilePath: string,
+  vaultRoot?: string
 ): ImageReference[] {
   const images: ImageReference[] = []
   const sourceDir = dirname(sourceFilePath)
+  const actualVaultRoot = vaultRoot || findVaultRoot(sourceDir)
 
   // Pattern 1: Obsidian ![[image.png]]
   const obsidianRegex = /!\[\[([^\]]+)\]\]/g
@@ -33,7 +35,7 @@ export function extractImageReferences(
     const filename = match[1].trim()
     images.push({
       originalPath: filename,
-      resolvedPath: resolveImagePath(filename, sourceDir),
+      resolvedPath: resolveImagePath(filename, sourceDir, actualVaultRoot),
       altText: basename(filename, extname(filename)),
       isObsidian: true
     })
@@ -48,7 +50,7 @@ export function extractImageReferences(
 
     images.push({
       originalPath: imagePath,
-      resolvedPath: resolveImagePath(imagePath, sourceDir),
+      resolvedPath: resolveImagePath(imagePath, sourceDir, actualVaultRoot),
       altText: altText || basename(imagePath, extname(imagePath)),
       isObsidian: false
     })
@@ -60,16 +62,53 @@ export function extractImageReferences(
 /**
  * Resolve image path relative to source file
  */
-function resolveImagePath(imagePath: string, sourceDir: string): string | null {
+function resolveImagePath(
+  imagePath: string,
+  sourceDir: string,
+  vaultRoot: string | null = null
+): string | null {
+  // Decode URL encoding (e.g., %20 -> space)
+  const decodedPath = decodeURIComponent(imagePath)
+
   // Try absolute path first
-  if (existsSync(imagePath)) {
-    return resolve(imagePath)
+  if (existsSync(decodedPath)) {
+    return resolve(decodedPath)
   }
 
   // Try relative to source file
-  const relativePath = join(sourceDir, imagePath)
+  const relativePath = join(sourceDir, decodedPath)
   if (existsSync(relativePath)) {
     return resolve(relativePath)
+  }
+
+  // If path starts with a number pattern like "9999 Images/" or "9999%20Images/",
+  // strip that prefix and try again
+  let cleanedPath = decodedPath
+  const prefixMatch = decodedPath.match(/^\d+\s+(.+)$/)
+  if (prefixMatch) {
+    cleanedPath = prefixMatch[1]
+
+    // Try with cleaned path from vault root
+    if (vaultRoot) {
+      const fromVaultRoot = join(vaultRoot, cleanedPath)
+      if (existsSync(fromVaultRoot)) {
+        return resolve(fromVaultRoot)
+      }
+    }
+
+    // Try relative with cleaned path
+    const relativeCleanPath = join(sourceDir, cleanedPath)
+    if (existsSync(relativeCleanPath)) {
+      return resolve(relativeCleanPath)
+    }
+  }
+
+  // Try from vault root if provided
+  if (vaultRoot) {
+    const fromVaultRoot = join(vaultRoot, decodedPath)
+    if (existsSync(fromVaultRoot)) {
+      return resolve(fromVaultRoot)
+    }
   }
 
   // Try common Obsidian attachment folders
@@ -83,16 +122,42 @@ function resolveImagePath(imagePath: string, sourceDir: string): string | null {
   ]
 
   for (const folder of attachmentFolders) {
-    const folderPath = join(sourceDir, folder, basename(imagePath))
+    const folderPath = join(sourceDir, folder, basename(decodedPath))
     if (existsSync(folderPath)) {
       return resolve(folderPath)
     }
 
     // Try parent directory
-    const parentPath = join(dirname(sourceDir), folder, basename(imagePath))
+    const parentPath = join(dirname(sourceDir), folder, basename(decodedPath))
     if (existsSync(parentPath)) {
       return resolve(parentPath)
     }
+
+    // Try from vault root
+    if (vaultRoot) {
+      const vaultFolderPath = join(vaultRoot, folder, basename(decodedPath))
+      if (existsSync(vaultFolderPath)) {
+        return resolve(vaultFolderPath)
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Find vault root by looking for .obsidian folder
+ */
+function findVaultRoot(startPath: string): string | null {
+  let currentPath = startPath
+  const root = resolve('/')
+
+  while (currentPath !== root) {
+    const obsidianPath = join(currentPath, '.obsidian')
+    if (existsSync(obsidianPath)) {
+      return currentPath
+    }
+    currentPath = dirname(currentPath)
   }
 
   return null
@@ -133,9 +198,10 @@ export function processImages(
   content: string,
   sourceFilePath: string,
   targetImageDir: string,
-  existingFiles: Set<string>
+  existingFiles: Set<string>,
+  vaultRoot?: string
 ): ImageProcessResult {
-  const images = extractImageReferences(content, sourceFilePath)
+  const images = extractImageReferences(content, sourceFilePath, vaultRoot)
   const warnings: string[] = []
   let imagesCopied = 0
   let imagesDeduplicated = 0
@@ -143,7 +209,9 @@ export function processImages(
 
   for (const image of images) {
     if (!image.resolvedPath) {
-      warnings.push(`Image not found: ${image.originalPath}`)
+      warnings.push(
+        `Image not found: ${image.originalPath} (decoded: ${decodeURIComponent(image.originalPath)})`
+      )
       continue
     }
 
