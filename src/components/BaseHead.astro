@@ -1,7 +1,7 @@
 ---
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
-import { ViewTransitions } from 'astro:transitions'
+import { ClientRouter } from 'astro:transitions'
 import '../styles/global.css'
 
 export interface Props {
@@ -37,26 +37,72 @@ const { title, description, image = '/placeholder-social.jpg' } = Astro.props
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
-<ViewTransitions fallback="swap" />
+<ClientRouter fallback="swap" />
 
 <script is:inline>
-  const setDarkMode = () => {
-    const theme = (() => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme')
-    }
-    if (window.matchMedia('(prefers-color-scheme:dark)').matches) {
-      return 'dark'
-    }
-    return 'light'
-  })()
-    if (theme === 'light') {
-      document.documentElement.classList.remove('dark')
+  /**
+   * Theme initialization script - runs before page render to prevent flickering
+   * Must be inline and synchronous to avoid flash of incorrect theme
+   */
+  (function initTheme() {
+    const getThemePreference = () => {
+      // Priority 1: User's saved preference
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem('theme');
+        if (stored) return stored;
+      }
+      
+      // Priority 2: System preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      
+      // Priority 3: Default to light
+      return 'light';
+    };
+
+    const applyTheme = (theme) => {
+      const root = document.documentElement;
+      const isDark = theme === 'dark';
+      
+      // Use toggle with a boolean for better performance
+      root.classList.toggle('dark', isDark);
+      
+      // Store the preference
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (e) {
+        // Handle localStorage being unavailable (private browsing, etc.)
+        console.warn('Unable to save theme preference:', e);
+      }
+    };
+
+    // Apply theme immediately (blocks rendering to prevent flicker)
+    const theme = getThemePreference();
+    applyTheme(theme);
+
+    // Re-apply theme after view transitions
+    document.addEventListener('astro:after-swap', () => {
+      const currentTheme = getThemePreference();
+      applyTheme(currentTheme);
+    });
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e) => {
+      // Only auto-switch if user hasn't set a manual preference
+      if (!localStorage.getItem('theme')) {
+        applyTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    
+    // Modern browsers
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
     } else {
-      document.documentElement.classList.add('dark')
+      // Fallback for older browsers
+      mediaQuery.addListener(handleSystemThemeChange);
     }
-  }
-  setDarkMode()
-  document.addEventListener('astro:after-swap', setDarkMode);
+  })();
 </script>
 
