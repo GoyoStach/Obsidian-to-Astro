@@ -1,0 +1,5 @@
+[phases.setup]
+nixPkgs = ['nodejs_20']
+
+[start]
+cmd = 'npm run preview -- --host 0.0.0.0 --port 3000'
