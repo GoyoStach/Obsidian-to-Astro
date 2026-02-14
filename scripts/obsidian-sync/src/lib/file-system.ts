@@ -38,6 +38,10 @@ export function purgeDirectory(targetDir: string): PurgeResult {
         const stat = statSync(fullPath)
 
         if (stat.isDirectory()) {
+          // Skip the preserved folder to protect images from deletion
+          if (entry === 'preserved') {
+            continue
+          }
           purgeRecursive(fullPath)
           directoriesProcessed.push(fullPath)
         } else if (stat.isFile()) {

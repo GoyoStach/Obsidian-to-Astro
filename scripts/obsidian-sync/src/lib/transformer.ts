@@ -25,11 +25,14 @@ export function transformWikiLinks(content: string): {
       // Remove .md extension if present
       const cleanTarget = target.trim().replace(/\.md$/i, '')
 
-      // Convert to slug
-      const slug = toSlug(cleanTarget)
+      // Extract only the filename (last part after /) for the slug
+      const filename = cleanTarget.split('/').pop() || cleanTarget
 
-      // Use display text if provided, otherwise use cleaned target
-      const linkText = display ? display.trim() : cleanTarget
+      // Convert filename to slug
+      const slug = toSlug(filename)
+
+      // Use display text if provided, otherwise use the filename without path
+      const linkText = display ? display.trim() : filename
 
       return `[${linkText}](/${slug})`
     }

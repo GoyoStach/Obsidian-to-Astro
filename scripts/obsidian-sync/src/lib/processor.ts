@@ -7,7 +7,7 @@ import type { Frontmatter } from '../types/frontmatter.js'
 import type { ProcessingStats } from '../types/config.js'
 import { getSlugFromPath } from '../utils/slug.js'
 import { transformContent } from './transformer.js'
-import { processImages } from './image-processor.js'
+import { processImages, processHeroImage } from './image-processor.js'
 import { enhanceFrontmatter } from './frontmatter.js'
 
 export async function processFiles(
@@ -44,7 +44,22 @@ export async function processFiles(
       const transformResult = transformContent(content)
       stats.linksConverted += transformResult.linksConverted
 
-      // Process images
+      // Process hero image from frontmatter
+      const heroImageResult = processHeroImage(
+        frontmatter.heroImage,
+        filePath,
+        imageDir,
+        existingImageFiles,
+        vaultRoot
+      )
+      if (heroImageResult.imageCopied) {
+        stats.imagesCopied++
+      }
+      if (heroImageResult.warning) {
+        stats.warnings.push(heroImageResult.warning)
+      }
+
+      // Process images in content
       const imageResult = processImages(
         transformResult.content,
         filePath,
@@ -64,6 +79,9 @@ export async function processFiles(
         transformResult.tagsExtracted
       )
       stats.tagsExtracted += transformResult.tagsExtracted.length
+
+      // Update hero image path in frontmatter
+      enhancedFrontmatter.heroImage = heroImageResult.heroImagePath
 
       // Generate output filename
       const slug = getSlugFromPath(filePath)

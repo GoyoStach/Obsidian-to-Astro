@@ -58,7 +58,7 @@ export function enhanceFrontmatter(
 
   // HeroImage: add default if missing
   if (!enhanced.heroImage) {
-    enhanced.heroImage = '../../Images/astro_banner.png'
+    enhanced.heroImage = '../../Images/preserved/astro_banner.png'
   }
 
   return enhanced

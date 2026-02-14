@@ -267,3 +267,65 @@ export function processImages(
     warnings
   }
 }
+
+/**
+ * Process hero image from frontmatter
+ * Resolves Obsidian hero image path, copies it to project, and returns updated path
+ */
+export function processHeroImage(
+  heroImagePath: string | undefined,
+  sourceFilePath: string,
+  targetImageDir: string,
+  existingFiles: Set<string>,
+  vaultRoot?: string
+): { heroImagePath: string; imageCopied: boolean; warning?: string } {
+  // Return default if no hero image specified
+  if (!heroImagePath) {
+    return {
+      heroImagePath: '../../Images/preserved/astro_banner.png',
+      imageCopied: false
+    }
+  }
+
+  // If it's already a relative path pointing to our Images folder, keep it
+  if (heroImagePath.startsWith('../../Images/')) {
+    return { heroImagePath, imageCopied: false }
+  }
+
+  // Try to resolve the hero image path from Obsidian vault
+  const sourceDir = dirname(sourceFilePath)
+  const actualVaultRoot = vaultRoot || findVaultRoot(sourceDir)
+  const resolvedPath = resolveImagePath(
+    heroImagePath,
+    sourceDir,
+    actualVaultRoot
+  )
+
+  if (!resolvedPath) {
+    return {
+      heroImagePath: '../../Images/preserved/astro_banner.png',
+      imageCopied: false,
+      warning: `Hero image not found: ${heroImagePath}, using default`
+    }
+  }
+
+  try {
+    // Copy hero image with deduplication
+    const newFilename = copyImageWithDeduplication(
+      resolvedPath,
+      targetImageDir,
+      existingFiles
+    )
+
+    return {
+      heroImagePath: `../../Images/${newFilename}`,
+      imageCopied: true
+    }
+  } catch (error) {
+    return {
+      heroImagePath: '../../Images/preserved/astro_banner.png',
+      imageCopied: false,
+      warning: `Failed to copy hero image ${heroImagePath}: ${error instanceof Error ? error.message : String(error)}`
+    }
+  }
+}
